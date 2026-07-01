@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RF Link — Real-World Scenario Quiz</title>
+<style>
+  :root{
+    --navy:#0B1F33; --teal:#0E7E76; --teal2:#17B3A6; --amber:#B07206; --amber2:#F2A40C;
+    --slate:#5A6B78; --ink:#14242F; --light:#EEF5F7; --amberfill:#FBF1DC; --line:#D9E2E6;
+    --good:#1E7D4F; --goodbg:#E7F4ED; --bad:#9A3324; --badbg:#F7EAE7; --paper:#FFFFFF;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    color:var(--ink);background:linear-gradient(160deg,#0B1F33 0%,#0B1F33 40%,#0f2840 100%);min-height:100vh;padding:0 16px 60px}
+  .wrap{max-width:860px;margin:0 auto}
+  header{padding:32px 0 20px;display:flex;align-items:center;gap:16px}
+  h1{font-family:Cambria,Georgia,serif;color:#fff;font-size:28px;margin:0;font-weight:700}
+  .sub{color:#9FB2C0;font-size:14px;margin-top:4px}
+  .brand{color:var(--teal2);font-weight:700;letter-spacing:2px;font-size:12px}
+  .card{background:var(--paper);border-radius:16px;box-shadow:0 18px 50px rgba(0,0,0,.28);padding:28px 30px 24px}
+  .ptop{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+  .pcount{font-size:13px;color:var(--slate);font-weight:600}
+  .chip{display:inline-block;background:var(--light);color:var(--teal);font-size:11px;font-weight:700;
+    padding:5px 11px;border-radius:20px;letter-spacing:.4px;text-transform:uppercase}
+  .bar{height:7px;background:var(--line);border-radius:6px;overflow:hidden;margin-bottom:22px}
+  .fill{height:100%;width:0;background:linear-gradient(90deg,var(--teal),var(--teal2));transition:width .35s}
+  .scen{background:var(--navy);color:#EAF1F4;border-radius:11px;padding:14px 16px;font-size:14.5px;line-height:1.55;margin-bottom:14px}
+  .scen .sl{display:block;font-size:11px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:var(--teal2);margin-bottom:5px}
+  .given{font-family:Consolas,"Courier New",monospace;font-size:13px;background:#0E1B26;color:#DCE6EA;
+    border-radius:9px;padding:11px 14px;margin-bottom:14px;white-space:pre-wrap;line-height:1.5;border-left:3px solid var(--teal2)}
+  .qtext{font-family:Cambria,Georgia,serif;font-size:19.5px;line-height:1.4;color:var(--navy);font-weight:700;margin:2px 0 18px}
+  .opts{display:flex;flex-direction:column;gap:10px}
+  .opt{display:flex;align-items:flex-start;gap:12px;text-align:left;width:100%;cursor:pointer;background:#fff;
+    border:1.6px solid var(--line);border-radius:11px;padding:13px 15px;font-size:15px;color:var(--ink);
+    transition:border-color .15s,background .15s,box-shadow .15s;font-family:inherit;line-height:1.4}
+  .opt:hover:not(:disabled){border-color:var(--teal);box-shadow:0 3px 12px rgba(14,126,118,.10)}
+  .opt:disabled{cursor:default}
+  .key{flex:0 0 auto;width:26px;height:26px;border-radius:7px;background:var(--navy);color:#fff;font-weight:700;
+    font-size:13.5px;display:flex;align-items:center;justify-content:center}
+  .opt.correct{border-color:var(--good);background:var(--goodbg)} .opt.correct .key{background:var(--good)}
+  .opt.wrong{border-color:var(--bad);background:var(--badbg)} .opt.wrong .key{background:var(--bad)}
+  .opt.dim{opacity:.6}
+  .mark{margin-left:auto;font-weight:700;font-size:17px;align-self:center}
+  .exp{margin-top:16px;border-left:4px solid var(--amber);background:var(--amberfill);border-radius:0 10px 10px 0;
+    padding:12px 15px;font-size:14px;line-height:1.55;color:var(--ink);display:none}
+  .exp.show{display:block} .exp b{color:var(--amber)} .exp code{font-family:Consolas,monospace;font-size:12.5px;background:#fff;padding:1px 4px;border-radius:3px}
+  .nav{display:flex;justify-content:space-between;align-items:center;margin-top:22px}
+  .scoreline{font-size:13px;color:var(--slate);font-weight:600}
+  button.btn{font-family:inherit;cursor:pointer;border:none;border-radius:10px;padding:12px 24px;font-size:15px;font-weight:700;background:var(--teal);color:#fff;transition:background .15s}
+  button.btn:hover{background:#0c6f68} button.btn:disabled{background:#b9c6cd;cursor:default}
+  .center{text-align:center}
+  .lead{font-size:16px;line-height:1.6;margin:14px 0 8px}
+  .meta{color:var(--slate);font-size:14px;margin:16px 0 24px}
+  .big{font-family:Cambria,Georgia,serif;font-size:56px;font-weight:700;color:var(--navy);line-height:1}
+  .pct{font-size:17px;color:var(--slate);margin-top:6px}
+  .msg{font-size:17px;font-weight:700;margin:16px 0 4px}
+  .review{margin-top:24px;text-align:left}
+  .rv{border:1px solid var(--line);border-radius:11px;padding:13px 15px;margin-bottom:10px}
+  .rv .rq{font-weight:700;color:var(--navy);font-size:14.5px;margin-bottom:6px;font-family:Cambria,Georgia,serif}
+  .rv .ra{font-size:13.5px;margin:3px 0;display:flex;gap:7px}
+  .rv .ra .lbl{flex:0 0 86px;color:var(--slate);font-weight:600}
+  .ok{color:var(--good);font-weight:700} .no{color:var(--bad);font-weight:700}
+  .rv .re{font-size:13px;color:var(--slate);margin-top:6px;line-height:1.5;border-top:1px dashed var(--line);padding-top:6px}
+  footer{color:#6f8090;font-size:12.5px;text-align:center;margin-top:22px}
+  @media(max-width:560px){.card{padding:20px 17px}h1{font-size:22px}.qtext{font-size:18px}.big{font-size:46px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <svg width="54" height="54" viewBox="0 0 54 54" aria-hidden="true">
+      <circle cx="27" cy="27" r="24" fill="none" stroke="#17B3A6" stroke-width="1.4" opacity=".5"/>
+      <circle cx="27" cy="27" r="16" fill="none" stroke="#17B3A6" stroke-width="1.4" opacity=".75"/>
+      <circle cx="27" cy="27" r="8" fill="none" stroke="#17B3A6" stroke-width="1.4"/>
+      <circle cx="27" cy="27" r="3" fill="#17B3A6"/></svg>
+    <div>
+      <div class="brand">ISKILLS · RF SYSTEMS</div>
+      <h1>RF Link — Real-World Scenario Quiz</h1>
+      <div class="sub">Advanced · worked scenarios from the link-analysis MATLAB tools</div>
+    </div>
+  </header>
+  <div class="card" id="card"></div>
+  <footer>iSkills · www.iskills.co — numbers match RF_Link_RealWorld.m &amp; RF_Link_Studies.m</footer>
+</div>
+
+<script>
+const Q = [
+ {t:"Impedance & matching",
+  sc:"You're commissioning the rural 900 MHz link. Before connecting the feeder you sweep the antenna and read its input impedance on the analyser.",
+  g:"ZL = 55 + j8 Ω    Z0 = 50 Ω\nΓ = (ZL−Z0)/(ZL+Z0)\nVSWR = (1+|Γ|)/(1−|Γ|)",
+  q:"What VSWR does the antenna present?",
+  o:["1.02 — essentially perfect","1.20 — a good match","2.10 — marginal","3.90 — investigate"],
+  a:1, e:"Γ = (5+j8)/(105+j8), |Γ| = √89/√11089 = 0.090. VSWR = 1.090/0.910 = <b>1.20</b>. A clean match — well under the 2:1 you'd flag."},
+
+ {t:"Noise figure (Friis)",
+  sc:"The urban 1800 MHz receiver has three stages in cascade. You need the system noise figure to work out sensitivity.",
+  g:"LNA:   NF 2 dB,  gain +12 dB\nMixer: NF 10 dB, gain −7 dB\nIF:    NF 12 dB, gain +25 dB\nF_sys = F1 + (F2−1)/G1 + (F3−1)/(G1·G2)",
+  q:"What is the system noise figure — and which stage dominates it?",
+  o:["≈12 dB, the IF amplifier dominates","≈10 dB, the mixer dominates","≈8.4 dB, the LNA dominates","≈2 dB, equal to the LNA alone"],
+  a:2, e:"Converting to linear and applying Friis gives F_sys ≈ 2.56 → <b>8.4 dB</b>. Even though later stages are noisy, they're divided by the LNA gain, so the <b>first stage (LNA) dominates</b> — the reason it must be low-noise and come first."},
+
+ {t:"Sensitivity",
+  sc:"Same urban receiver: channel bandwidth 6.25 MHz, system NF 8.4 dB, and 16QAM needs about 18 dB SNR.",
+  g:"N = −174 + 10·log10(B) + NF\nsensitivity = N + required SNR",
+  q:"What is the receiver sensitivity?",
+  o:["−108.6 dBm","−97.7 dBm","−79.7 dBm","−61.5 dBm"],
+  a:2, e:"Noise floor N = −174 + 10log10(6.25e6) + 8.4 = −174 + 68.0 + 8.4 = −97.7 dBm. Add the 18 dB the modulation needs: sensitivity = <b>−79.7 dBm</b>. (−97.7 dBm is the noise floor, not the sensitivity.)"},
+
+ {t:"Propagation",
+  sc:"The urban hop is 2 km. You use a log-distance model with exponent n = 3.5, referenced to the free-space loss at 1 km (97.55 dB at 1800 MHz).",
+  g:"PL(d) = PL(1 km) + 10·n·log10(d)",
+  q:"What is the path loss at 2 km?",
+  o:["103.6 dB","108.1 dB","114.6 dB","122.0 dB"],
+  a:1, e:"PL = 97.55 + 10·3.5·log10(2) = 97.55 + 35·0.301 = 97.55 + 10.5 = <b>108.1 dB</b>. (103.6 dB would be pure free-space with n = 2 — the urban exponent adds ~4.5 dB.)"},
+
+ {t:"Link budget",
+  sc:"Urban link budget: EIRP 52 dBm, path loss 108.1 dB, fade margin 20 dB, matched feeder, RX antenna gain 2 dBi, no RX feeder loss.",
+  g:"RX = EIRP − PL − fade − mismatch + Grx − Lrx",
+  q:"What received level does the link deliver?",
+  o:["−62.6 dBm","−74.1 dBm","−80.9 dBm","−97.7 dBm"],
+  a:1, e:"RX = 52 − 108.1 − 20 − 0 + 2 − 0 = <b>−74.1 dBm</b>."},
+
+ {t:"Link margin",
+  sc:"That urban link delivers −74.1 dBm into a receiver with −79.7 dBm sensitivity.",
+  g:"margin = RX − sensitivity",
+  q:"What is the link margin, and does it close?",
+  o:["−5.6 dB — it fails","+5.6 dB — it closes, but tightly","+18.0 dB — comfortable","+36.0 dB — very comfortable"],
+  a:1, e:"Margin = −74.1 − (−79.7) = <b>+5.6 dB</b>. It closes, but there's little headroom — exactly the kind of link a small extra loss can break (see the feeder-fault question)."},
+
+ {t:"Fault: VSWR",
+  sc:"Weeks later the same site starts dropping after rain. You sweep the feeder and the antenna port now reads a very different impedance — water has entered the connector.",
+  g:"ZL = 20 − j35 Ω    Z0 = 50 Ω",
+  q:"What VSWR results from this fault?",
+  o:["1.20","2.05","3.87","6.40"],
+  a:2, e:"|Γ| = |(−30−j35)/(70−j35)| = √2125/√6125 = 0.589. VSWR = 1.589/0.411 = <b>3.87</b> — a large mismatch, the classic signature of a wet/corroded feeder."},
+
+ {t:"Fault: mismatch loss",
+  sc:"That VSWR of 3.87 means a chunk of forward power is reflected back down the feeder instead of radiating.",
+  g:"|Γ| = (VSWR−1)/(VSWR+1)\nmismatch loss = −10·log10(1 − |Γ|²)",
+  q:"How much mismatch (reflection) loss does this add?",
+  o:["0.03 dB","0.5 dB","1.85 dB","4.6 dB"],
+  a:2, e:"|Γ| = 2.87/4.87 = 0.589. Mismatch loss = −10log10(1 − 0.347) = −10log10(0.653) = <b>1.85 dB</b>. (4.6 dB is the return loss — a different quantity.)"},
+
+ {t:"Fault: does it still close?",
+  sc:"The wet feeder adds about 5 dB of extra cable loss on top of the 1.85 dB mismatch loss. The urban link had just +5.6 dB of margin.",
+  g:"new margin ≈ +5.6 − 5(feeder) − 1.85(mismatch) + …",
+  q:"What happens to the link?",
+  o:["Still fine — margin ~+4 dB","Margin falls to about −1.3 dB — the link fails","Unchanged — VSWR doesn't affect the budget","Improves — reflection adds gain"],
+  a:1, e:"Rerun with the wet feeder (EIRP drops to 47 dBm) and the mismatch loss: RX ≈ −80.9 dBm vs −79.7 dBm sensitivity → margin <b>−1.3 dB → the link fails</b>. A 5.6 dB margin had no room for a 6.8 dB fault."},
+
+ {t:"Diagnosis",
+  sc:"Symptoms: the link worked for weeks, started dropping only after heavy rain, recovers partly when dry, and the feeder VSWR has jumped from 1.0 to 3.9.",
+  q:"What is the most likely root cause?",
+  o:["Receiver LNA failure","Water ingress in the feeder/connector","Wrong modulation setting","Interference from a nearby transmitter"],
+  a:1, e:"Rain-correlation + a VSWR that jumped from flat to 3.9 points squarely at <b>water ingress in the feeder/connector</b>. An LNA fault or a modulation setting wouldn't move VSWR; interference wouldn't correlate with rain or change VSWR."},
+
+ {t:"Interference (SINR)",
+  sc:"A different urban site: the budget is healthy (RX −74.1 dBm, noise floor −97.7 dBm, +5.6 dB margin). But a co-channel transmitter puts −68 dBm into your band.",
+  g:"SINR = RX − (noise ⊕ interferer)   [powers add]",
+  q:"What is the effective SINR?",
+  o:["+23.6 dB — unaffected","+5.6 dB — equals the margin","−6.1 dB — the interferer dominates","−12.0 dB"],
+  a:2, e:"The interferer (−68 dBm) is far above the noise floor (−97.7 dBm), so noise+interference ≈ −68 dBm. SINR = −74.1 − (−68) = <b>−6.1 dB</b>. The wanted signal is actually below the interferer."},
+
+ {t:"Diagnosis: which limit?",
+  sc:"This link's power budget closes with +5.6 dB margin, yet it won't pass data. The thermal SNR alone would be 23.6 dB.",
+  q:"What kind of problem is this, and what's the fix?",
+  o:["Power-limited — add transmit power or antenna gain","Interference-limited — filter or re-plan the channel","Noise-limited — cool the receiver","Nothing wrong — margin is positive"],
+  a:1, e:"Positive margin but failing on SINR means it's <b>interference-limited, not power-limited</b>. More power won't help (it raises the interferer's victim equally at the offending source). The fix is filtering, a frequency/channel re-plan, or removing the interferer."},
+
+ {t:"Fading & availability",
+  sc:"A 5 km link has 11.7 dB of mean margin. The environment adds log-normal shadowing with σ = 8 dB.",
+  g:"availability ≈ Φ(mean margin / σ)",
+  q:"Roughly what fraction of the time does the link stay above sensitivity (shadowing only)?",
+  o:["about 68%","about 84%","about 93%","about 99.9%"],
+  a:2, e:"Φ(11.7/8) = Φ(1.46) ≈ <b>0.93 → 93%</b>. Good, but nowhere near carrier-grade — and this is before fast fading."},
+
+ {t:"Designing for 99.9%",
+  sc:"That same 5 km link has 11.7 dB mean margin, σ = 8 dB shadowing. You need 99.9% availability.",
+  g:"required total margin = Φ⁻¹(0.999)·σ ≈ 3.09·σ",
+  q:"How much EXTRA fade margin must you design in?",
+  o:["about +3 dB","about +7 dB","about +13 dB","about +25 dB"],
+  a:2, e:"99.9% needs 3.09σ = 3.09·8 ≈ 24.7 dB total margin. You already have 11.7 dB, so you must add ≈ <b>+13 dB</b> (higher gain, more power, or shorter hop). For 99% it's only about +7 dB."},
+
+ {t:"Fast fading",
+  sc:"Running the Monte-Carlo with shadowing only gave 93% availability. Adding Rayleigh fast fading on top drops it to 83%.",
+  q:"What's the engineering lesson?",
+  o:["Fast fading is negligible — ignore it","Deep multipath fades need extra margin or diversity","Rayleigh improves the link on average","Shadowing and Rayleigh cancel out"],
+  a:1, e:"Rayleigh multipath produces deep, brief fades that a shadowing-only estimate misses, cutting availability from 93% to <b>83%</b>. Real designs budget for it with extra margin or with diversity (space/frequency/time)."},
+
+ {t:"Multi-hop chain",
+  sc:"A 20 km route is built as 4 relay hops. Each hop, on its own, is available 92.8% of the time.",
+  g:"end-to-end availability = (per-hop)^K   (series)",
+  q:"What is the end-to-end availability of the 4-hop chain?",
+  o:["92.8% — same as one hop","about 85%","about 74%","about 99%"],
+  a:2, e:"Hops are in series, so availabilities multiply: 0.928⁴ = <b>0.74 → 74%</b>. Each added hop in series pulls the end-to-end figure down, even when every hop looks healthy."},
+
+ {t:"Multi-hop reasoning",
+  sc:"Shortening the hops raises each hop's margin (and availability), but the study shows even 8 hops only reach ~97.8% end-to-end.",
+  q:"Why doesn't a chain of very reliable hops give near-100% end-to-end?",
+  o:["Because per-hop availabilities multiply in series","Because path loss disappears with more hops","Because noise figure improves each hop","Because VSWR resets at each relay"],
+  a:0, e:"Series reliability is a <b>product</b>: 0.99⁸ ≈ 0.92. Each hop is a link in a chain — more links means more chances to break, so you need very high per-hop availability (and often route diversity) for carrier-grade end-to-end."},
+
+ {t:"Adaptive modulation",
+  sc:"At a 2 km subscriber, the available SNR works out to 43.6 dB. Your radio can pick from BPSK(7), QPSK(10), 16QAM(17), 64QAM(23), 256QAM(29) — numbers are the SNR each needs (dB), on a 5 Msym/s carrier.",
+  q:"Which modulation should it use, and what throughput does that give?",
+  o:["QPSK → 10 Mbps","16QAM → 20 Mbps","256QAM → 40 Mbps","It cannot close at 2 km"],
+  a:2, e:"43.6 dB clears every threshold, so pick the highest: <b>256QAM (needs 29 dB) → 8 bits/sym × 5 Msym/s = 40 Mbps</b>. Adaptive modulation grabs the most bits the SNR allows — but 256QAM only reaches ~5.2 km, whereas QPSK would reach ~18 km at a quarter the rate: the range-vs-rate trade."}
+];
+
+const card=document.getElementById('card');
+let idx=0, score=0; const chosen=new Array(Q.length).fill(null);
+
+function start(){
+  card.innerHTML=`<div class="center">
+    <div class="lead">${Q.length} advanced, worked RF scenarios — impedance & matching, noise figure, link budget, a feeder fault, interference, fading & availability, multi-hop, and adaptive modulation.</div>
+    <div class="meta">Each question sets a real situation and gives you the data. Pick an answer to see the worked solution.<br>
+    Every number matches the link-analysis MATLAB tools. Suggested pass mark: 70% (${Math.ceil(Q.length*0.7)}/${Q.length}).</div>
+    <button class="btn" onclick="render()">Start the quiz</button></div>`;
+}
+function render(){
+  const x=Q[idx], picked=chosen[idx], ans=picked!==null;
+  const opts=x.o.map((t,i)=>{
+    let cls="opt"; if(ans){cls+=" dim"; if(i===x.a)cls="opt correct"; else if(i===picked)cls="opt wrong";}
+    const m=ans&&i===x.a?'<span class="mark ok">✓</span>':(ans&&i===picked?'<span class="mark no">✕</span>':'');
+    return `<button class="${cls}" ${ans?'disabled':''} onclick="pick(${i})"><span class="key">${"ABCD"[i]}</span><span>${t}</span>${m}</button>`;
+  }).join("");
+  card.innerHTML=`
+    <div class="ptop"><span class="chip">${x.t}</span><span class="pcount">Question ${idx+1} of ${Q.length}</span></div>
+    <div class="bar"><div class="fill" style="width:${idx/Q.length*100}%"></div></div>
+    <div class="scen"><span class="sl">Scenario</span>${x.sc}</div>
+    ${x.g?`<div class="given">${x.g}</div>`:''}
+    <div class="qtext">${x.q}</div>
+    <div class="opts">${opts}</div>
+    <div class="exp ${ans?'show':''}"><b>${picked===x.a?'Correct.':'Not quite.'}</b> ${x.e}</div>
+    <div class="nav"><span class="scoreline">Score: ${score} / ${Q.length}</span>
+      <button class="btn" ${ans?'':'disabled'} onclick="next()">${idx===Q.length-1?'See results':'Next question'}</button></div>`;
+}
+function pick(i){ if(chosen[idx]!==null)return; chosen[idx]=i; if(i===Q[idx].a)score++; render(); }
+function next(){ if(chosen[idx]===null)return; if(idx<Q.length-1){idx++;render();} else results(); }
+function results(){
+  const pct=Math.round(score/Q.length*100); let msg,col;
+  if(pct>=90){msg="Outstanding — you can run a link budget in your head.";col="var(--good)";}
+  else if(pct>=70){msg="Solid pass. Review the ones you missed.";col="var(--teal)";}
+  else if(pct>=50){msg="Getting there — rerun the MATLAB tools alongside these.";col="var(--amber)";}
+  else{msg="Worth working back through the two link programs.";col="var(--bad)";}
+  const review=Q.map((x,n)=>{const yi=chosen[n],ok=yi===x.a;
+    return `<div class="rv"><div class="rq">Q${n+1}. ${x.q}</div>
+      <div class="ra"><span class="lbl">Your answer</span><span class="${ok?'ok':'no'}">${"ABCD"[yi]} — ${x.o[yi]} ${ok?'✓':'✕'}</span></div>
+      ${ok?'':`<div class="ra"><span class="lbl">Correct</span><span class="ok">${"ABCD"[x.a]} — ${x.o[x.a]}</span></div>`}
+      <div class="re">${x.e}</div></div>`;}).join("");
+  card.innerHTML=`<div class="center">
+    <div class="big" style="color:${col}">${score}/${Q.length}</div><div class="pct">${pct}%</div>
+    <div class="bar" style="max-width:340px;margin:18px auto 0"><div class="fill" style="width:${pct}%;background:${col}"></div></div>
+    <div class="msg" style="color:${col}">${msg}</div>
+    <button class="btn" style="margin-top:18px" onclick="restart()">Restart quiz</button></div>
+    <div class="review"><h3 style="font-family:Cambria,Georgia,serif;color:var(--navy)">Review &amp; worked solutions</h3>${review}</div>`;
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function restart(){ idx=0;score=0;chosen.fill(null);start();window.scrollTo({top:0,behavior:'smooth'}); }
+start();
+</script>
+</body>
+</html>
